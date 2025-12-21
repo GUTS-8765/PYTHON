@@ -1,0 +1,95 @@
+import os
+
+FILE_NAME = "notes.txt"
+
+def load_notes():
+    """Загружает заметки из файла в список кортежей."""
+    notes = []
+    try:
+        with open(FILE_NAME, "r", encoding="utf-8") as f:
+            for line in f:
+                # Удаляем лишние пробелы и разбиваем строку по первому '|'
+                parts = line.strip().split("|", 1)
+                if len(parts) == 2:
+                    category, text = parts[0].strip(), parts[1].strip()
+                    notes.append((category, text))
+    except FileNotFoundError:
+        print(f"Файл {FILE_NAME} не найден. Будет создан новый.")
+        # Создаем пустой файл, если его нет, чтобы не было ошибок при записи
+        with open(FILE_NAME, "w", encoding="utf-8") as f:
+            pass
+    return notes
+
+def save_notes(notes):
+    """Перезаписывает файл всеми заметками."""
+    with open(FILE_NAME, "w", encoding="utf-8") as f:
+        for category, text in notes:
+            f.write(f"{category} | {text}\n")
+
+def add_note():
+    """Добавляет новую заметку, запрашивая категорию и текст у пользователя."""
+    category = input("Введите категорию заметки: ").strip()
+    text = input("Введите текст заметки: ").strip()
+    if category and text:
+        with open(FILE_NAME, "a", encoding="utf-8") as f:
+            f.write(f"{category} | {text}\n")
+        print("Заметка добавлена!")
+    else:
+        print("Категория и текст не могут быть пустыми.")
+
+def find_by_category(category):
+    """Возвращает список заметок по указанной категории."""
+    all_notes = load_notes()
+    # Используем списковое включение (list comprehension)
+    results = [note for note in all_notes if note[0].lower() == category.lower()]
+    return results
+
+def search_word(word):
+    """Ищет заметки, содержащие указанное слово (без учета регистра)."""
+    all_notes = load_notes()
+    results = []
+    for category, text in all_notes:
+        if word.lower() in text.lower():
+            results.append((category, text))
+    return results
+
+def display_notes(notes, title="Все заметки"):
+    """Выводит список заметок на экран."""
+    print(f"\n--- {title} ---")
+    if not notes:
+        print("Заметок нет.")
+    else:
+        for i, (cat, txt) in enumerate(notes):
+            print(f"{i+1}. [{cat}] {txt}")
+    print("---------------\n")
+
+def main():
+    """Основная функция программы для управления меню."""
+    while True:
+        print("\n=== Менеджер заметок ===")
+        print("1. Добавить заметку")
+        print("2. Показать все заметки")
+        print("3. Найти по категории")
+        print("4. Поиск по слову")
+        print("5. Выход")
+        choice = input("Выберите действие (1-5): ")
+
+        if choice == '1':
+            add_note()
+        elif choice == '2':
+            display_notes(load_notes(), "Все заметки")
+        elif choice == '3':
+            category = input("Введите категорию для поиска: ").strip()
+            found = find_by_category(category)
+            display_notes(found, f"Заметки по категории '{category}'")
+        elif choice == '4':
+            word = input("Введите слово для поиска: ").strip()
+            found = search_word(word)
+            display_notes(found, f"Результаты поиска по слову '{word}'")
+        elif choice == '5':
+            print("Выход из программы. До свидания!")
+            break
+        else:
+            print("Неверный ввод. Пожалуйста, выберите число от 1 до 5.")
+
+if __name__
