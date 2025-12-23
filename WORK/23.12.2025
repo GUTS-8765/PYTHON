@@ -1,0 +1,40 @@
+import functools # Для сохранения метаданных функции
+
+def call_counter(func):
+    """Декоратор, считающий и выводящий информацию о вызовах функции."""
+    @functools.wraps(func) # Сохраняет имя, docstring и т.д. исходной функции
+    def wrapper(*args, **kwargs):
+        # Инициализация или инкремент счетчика
+        if not hasattr(wrapper, 'count'):
+            wrapper.count = 0 # Первый вызов
+        wrapper.count += 1
+
+        # Вывод информации
+        print(f"Функция '{func.__name__}' вызвана {wrapper.count} раз")
+        print(f"Аргументы: {args}, {kwargs}")
+
+        # Вызов исходной функции и возврат результата
+        result = func(*args, **kwargs)
+        print(result) # Выводим результат, как в примере
+        return result
+    return wrapper
+
+# Применение декоратора к функциям
+@call_counter
+def add(a, b):
+    """Возвращает сумму двух чисел."""
+    return a + b
+
+@call_counter
+def repeat(text, n):
+    """Возвращает строку, повторённую n раз."""
+    return text * n
+
+# Тестирование
+print("--- Вызовы функции add ---")
+add(2, 3)
+add(10, 5)
+
+print("\n--- Вызовы функции repeat ---")
+repeat('Hi', 3)
+repeat('Hello', 2)
